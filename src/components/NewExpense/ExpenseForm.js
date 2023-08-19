@@ -1,59 +1,95 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-import "./NewExpense.css";
+import "./ExpenseForm.css";
 
-const ExpenseForm = () => {
-    const today = new Date();
-    const [userInput, setUserInput] = useState({
-        enteredTitle: '',
-        enteredAmount: '',
-        enteredDate: today.toISOString().slice(0, 10),
-    });
+const ExpenseForm = (props) => {
+	const [enteredTitle, setEnteredTitle] = useState("");
+	const [enteredAmount, setEnteredAmount] = useState("");
+	const [enteredDate, setEnteredDate] = useState("");
+	// const [userInput, setUserInput] = useState({
+	//   enteredTitle: '',
+	//   enteredAmount: '',
+	//   enteredDate: '',
+	// });
 
-    const inputChangeHandler = (identifier, value) => {
-        setUserInput((prevState => {
-            return {...prevState, [identifier]: value};
-        }))
-    }
+	const titleChangeHandler = (event) => {
+		setEnteredTitle(event.target.value);
+		// setUserInput({
+		//   ...userInput,
+		//   enteredTitle: event.target.value,
+		// });
+		// setUserInput((prevState) => {
+		//   return { ...prevState, enteredTitle: event.target.value };
+		// });
+	};
 
-    const formSubmitted = (e) => {
-        e.preventDefault();
-        setUserInput({
-            enteredTitle: userInput.enteredTitle,
-            enteredAmount: userInput.enteredAmount,
-            enteredDate: userInput.enteredDate,
-        })
+	const amountChangeHandler = (event) => {
+		setEnteredAmount(event.target.value);
+		// setUserInput({
+		//   ...userInput,
+		//   enteredAmount: event.target.value,
+		// });
+	};
 
-        // saving to local storage
-        localStorage.setItem('expenses', JSON.stringify(userInput));
+	const dateChangeHandler = (event) => {
+		setEnteredDate(event.target.value);
+		// setUserInput({
+		//   ...userInput,
+		//   enteredDate: event.target.value,
+		// });
+	};
 
-        // clearing local storage
-        localStorage.clear();
-        
-        setUserInput({
-            enteredTitle: '',
-            enteredAmount: '',
-            enteredDate: today.toISOString().slice(0, 10),
-        })
-    }
+	const submitHandler = (event) => {
+		event.preventDefault();
+
+		const expenseData = {
+			title: enteredTitle,
+			amount: enteredAmount,
+			date: new Date(enteredDate),
+		};
+
+		props.onSaveExpenseData(expenseData);
+		setEnteredTitle("");
+		setEnteredAmount("");
+		setEnteredDate("");
+	};
 
 	return (
-		<form onSubmit={formSubmitted}>
+		<form onSubmit={submitHandler}>
 			<div className="new-expense__controls">
 				<div className="new-expense__control">
 					<label>Title</label>
-					<input onChange={(e) => inputChangeHandler('enteredTitle', e.target.value)} value={userInput.enteredTitle} type="text" required />
+					<input
+						type="text"
+						value={enteredTitle}
+						onChange={titleChangeHandler}
+					/>
 				</div>
 				<div className="new-expense__control">
 					<label>Amount</label>
-					<input onChange={(e) => inputChangeHandler('enteredAmount', e.target.value)} type="number" value={userInput.enteredAmount} min="0.01" step="0.01" required />
+					<input
+						type="number"
+						min="0.01"
+						step="0.01"
+						value={enteredAmount}
+						onChange={amountChangeHandler}
+					/>
 				</div>
 				<div className="new-expense__control">
 					<label>Date</label>
-					<input onChange={(e) => inputChangeHandler('enteredDate', e.target.value)} type="date" value={userInput.enteredDate} min="2019-01-01" max="2023-12-31" />
+					<input
+						type="date"
+						min="2019-01-01"
+						max="2023-12-31"
+						value={enteredDate}
+						onChange={dateChangeHandler}
+					/>
 				</div>
 			</div>
 			<div className="new-expense__actions">
+				<button type="button" onClick={props.onCancel}>
+					Cancel
+				</button>
 				<button type="submit">Add Expense</button>
 			</div>
 		</form>
